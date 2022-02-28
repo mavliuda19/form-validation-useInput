@@ -1,77 +1,49 @@
-import { useState } from 'react'
+import useInput from '../hooks/useInput'
 import { nameRegex, validEmailRegex } from '../utils/constants/constants'
 
 const BasicForm = () => {
-	const [values, setValues] = useState({
-		firstName: '',
-		lastName: '',
-		email: '',
-	})
-	const [enteredNameTouched, setEnteredNameTouched] = useState(false)
-	const [enteredlnameTouched, setEnteredLnameTouched] = useState(false)
-	const [enteredEmailTouched, setEnteredEmailTouched] = useState(false)
-
-	const firstNameIsValid =
-		values.firstName.trim() !== '' && nameRegex.test(values.firstName)
-	const firstInputisValid = !firstNameIsValid && enteredNameTouched
-
-	const lastNameIsValid =
-		values.lastName.trim() !== '' && nameRegex.test(values.lastName)
-	const lastInputisValid = !lastNameIsValid && enteredlnameTouched
-
-	const emailIsValid =
-		values.email.trim() !== '' && validEmailRegex.test(values.email)
-	const emailInputisValid = !emailIsValid && enteredEmailTouched
+	const firstName = useInput(nameRegex)
+	const lastName = useInput(nameRegex)
+	const email = useInput(validEmailRegex)
 
 	let formIsValid = false
 
-	if (firstNameIsValid && lastNameIsValid && emailIsValid) {
+	if (
+		firstName.enteredValueIsValid &&
+		lastName.enteredValueIsValid &&
+		email.enteredValueIsValid
+	) {
 		formIsValid = true
 	} else {
 		formIsValid = false
 	}
 
-	const inputChangeHandler = (e) => {
-		const currentInput = e.target.name
-		setValues({
-			...values,
-			[currentInput]: e.target.value,
-		})
-	}
-	console.log(values)
-	const fistNameBlurHandler = (e) => {
-		setEnteredNameTouched(true)
-	}
-	const lastNameBlurHandler = (e) => {
-		setEnteredLnameTouched(true)
-	}
-	const emailBlurHandler = (e) => {
-		setEnteredEmailTouched(true)
-	}
-
-	console.log(values.firstName)
-
 	const submitHandler = (e) => {
 		e.preventDefault()
-		setEnteredNameTouched(true)
-		setEnteredLnameTouched(true)
-		setEnteredEmailTouched(true)
-		if (!firstNameIsValid && !lastNameIsValid && !emailIsValid) return
-		setValues({ firstName: '', lastName: '', email: '' })
-		setEnteredNameTouched(false)
-		setEnteredLnameTouched(false)
-		setEnteredEmailTouched(false)
+		if (
+			!firstName.enteredValueIsValid &&
+			!lastName.enteredValueIsValid &&
+			!email.enteredValueIsValid
+		)
+			return
+		firstName.setValues('')
+		lastName.setValues('')
+		email.setValues('')
+
+		firstName.setValueTouched(false)
+		lastName.setValueTouched(false)
+		email.setValueTouched(false)
 	}
 
-	const firstNameInputClasses = !firstInputisValid
+	const firstNameInputClasses = !firstName.inputIsInvalid
 		? 'form-control'
 		: 'form-control invalid'
 
-	const lastNameInputClasses = !lastInputisValid
+	const lastNameInputClasses = !lastName.inputIsInvalid
 		? 'form-control'
 		: 'form-control invalid'
 
-	const emailInputClasses = !emailInputisValid
+	const emailInputClasses = !email.inputIsInvalid
 		? 'form-control'
 		: 'form-control invalid'
 
@@ -82,23 +54,23 @@ const BasicForm = () => {
 					<label htmlFor='name'>First Name</label>
 					<input
 						name='firstName'
-						value={values.firstName}
-						onChange={inputChangeHandler}
-						onBlur={fistNameBlurHandler}
+						value={firstName.values}
+						onChange={firstName.changeHandler}
+						onBlur={firstName.onBlurHandler}
 						type='text'
 					/>
-					{firstInputisValid && <p>First Name is invalid!</p>}
+					{firstName.inputIsInvalid && <p>First Name is invalid!</p>}
 				</div>
 				<div className={lastNameInputClasses}>
 					<label htmlFor='name'>Last Name</label>
 					<input
 						name='lastName'
-						value={values.lastName}
-						onChange={inputChangeHandler}
-						onBlur={lastNameBlurHandler}
+						value={lastName.values}
+						onChange={lastName.changeHandler}
+						onBlur={lastName.onBlurHandler}
 						type='text'
 					/>
-					{lastInputisValid && <p>Last Name is invalid!</p>}
+					{lastName.inputIsInvalid && <p>Last Name is invalid!</p>}
 				</div>
 			</div>
 			<div className={emailInputClasses}>
@@ -106,12 +78,12 @@ const BasicForm = () => {
 				<input
 					name='email'
 					type='email'
-					value={values.email}
-					onChange={inputChangeHandler}
-					onBlur={emailBlurHandler}
+					value={email.values}
+					onChange={email.changeHandler}
+					onBlur={email.onBlurHandler}
 					type='text'
 				/>
-				{emailInputisValid && <p>E-Mail Address is invalid!</p>}
+				{email.inputIsInvalid && <p>E-Mail Address is invalid!</p>}
 			</div>
 			<div className='form-actions'>
 				<button disabled={!formIsValid}>Submit</button>
